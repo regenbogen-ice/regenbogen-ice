@@ -1,0 +1,47 @@
+version: '3'
+services:
+  database:
+    image: mysql
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - db:/var/lib/mysql
+    command: mysqld --default-authentication-plugin=mysql_native_password
+  redis:
+    image: redis
+    restart: unless-stopped
+  rabbit:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    hostname: rabbit
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password
+    volumes:
+      - rabbit:/var/lib/rabbitmq
+  backend:
+    image: ghcr.io/regenbogen-ice/backend:development
+    restart: unless-stopped
+    depends_on:
+      - database
+      - redis
+      - rabbit
+    env_file:
+      - .env
+    environment:
+      MYSQL_HOST: database
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      REDIS_URL: redis://redis
+      RABBIT_URL: amqp://rabbit
+
+volumes:
+  db:
+  rabbit:
