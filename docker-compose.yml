@@ -22,11 +22,11 @@ services:
     hostname: rabbit
     environment:
       RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_DEFAULT_PASS: admin
     volumes:
       - rabbit:/var/lib/rabbitmq
   backend:
-    image: ghcr.io/regenbogen-ice/backend:development
+    image: ghcr.io/regenbogen-ice/backend:canary
     restart: unless-stopped
     depends_on:
       - database
@@ -40,7 +40,34 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       REDIS_URL: redis://redis
-      RABBIT_URL: amqp://rabbit
+      RABBIT_URL: ${RABBIT_URL}
+      TZ: Europe/Berlin
+  api:
+    image: ghcr.io/regenbogen-ice/api:canary
+    restart: unless-stopped
+    depends_on:
+      - database
+      - redis
+      - rabbit
+      - backend
+    env_file:
+      - .env
+    environment:
+      MYSQL_HOST: database
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      REDIS_URL: redis://redis
+      RABBIT_URL: ${RABBIT_URL}
+      TZ: Europe/Berlin
+  
+  frontend:
+    image: ghcr.io/regenbogen-ice/frontend:canary
+    restart: unless-stopped
+    depends_on:
+      - api
+      - backend
+
 
 volumes:
   db:
