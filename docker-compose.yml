@@ -26,7 +26,7 @@ services:
     volumes:
       - rabbit:/var/lib/rabbitmq
   backend:
-    image: ghcr.io/regenbogen-ice/backend:canary
+    image: ghcr.io/regenbogen-ice/backend:main
     restart: unless-stopped
     depends_on:
       - database
@@ -43,7 +43,7 @@ services:
       RABBIT_URL: ${RABBIT_URL}
       TZ: Europe/Berlin
   api:
-    image: ghcr.io/regenbogen-ice/api:canary
+    image: ghcr.io/regenbogen-ice/api:main
     restart: unless-stopped
     depends_on:
       - database
@@ -62,7 +62,7 @@ services:
       TZ: Europe/Berlin
   
   frontend:
-    image: ghcr.io/regenbogen-ice/frontend:canary
+    image: ghcr.io/regenbogen-ice/frontend:main
     restart: unless-stopped
     depends_on:
       - api
